@@ -9,7 +9,6 @@ import {
   Wallet,
 } from 'lucide-react';
 
-
 const useWindowWidth = () => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -24,7 +23,6 @@ const useWindowWidth = () => {
     return windowWidth;
 };
 
-
 const ServiceButton = ({ onClick, children, icon: Icon }) => (
     <button onClick={onClick} className="service-button">
         <div className="service-icon-wrapper">
@@ -33,7 +31,6 @@ const ServiceButton = ({ onClick, children, icon: Icon }) => (
         <span className="service-label">{children}</span>
     </button>
 );
-
 
 const TopBar = ({ user, currentTime, onNotificationClick }) => {
     const windowWidth = useWindowWidth();
@@ -57,7 +54,6 @@ const TopBar = ({ user, currentTime, onNotificationClick }) => {
         </div>
     );
 };
-
 
 const DashboardSummary = ({ accounts, monthlyExpenses }) => {
     const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0).toFixed(2);
@@ -85,7 +81,6 @@ const DashboardSummary = ({ accounts, monthlyExpenses }) => {
     );
 };
 
-
 const ForexRatesCard = ({ fxRates }) => {
     return (
         <div className="forex-card">
@@ -107,7 +102,6 @@ const ForexRatesCard = ({ fxRates }) => {
 const Carousel = ({ advertisements }) => {
     const [currentAdIndex, setCurrentAdIndex] = useState(0);
 
-   
     useEffect(() => {
         const adInterval = setInterval(() => {
             setCurrentAdIndex((prevIndex) => (prevIndex + 1) % advertisements.length);
@@ -173,6 +167,7 @@ const ServiceModal = ({ show, onClose, children }) => {
         </div>
     );
 };
+
 const SendMoneyModal = ({ onClose, fxRates, showAppNotification }) => {
     const [amount, setAmount] = useState(100);
     const [sendCurrency, setSendCurrency] = useState("USD");
@@ -199,16 +194,13 @@ const SendMoneyModal = ({ onClose, fxRates, showAppNotification }) => {
         return 0.10; 
     };
 
-   
     const feePercent = getFeePercent(sendCurrency, paymentMethod);
     const fee = Math.round(amount * feePercent * 100) / 100;
     const amountAfterFee = amount - fee;
 
-  
     const sendRate = fxRates[sendCurrency] || 1;
     const recipientRate = fxRates[recipientCurrency] || 1;
     
- 
     const amountInUSD = sendCurrency === "USD" ? amountAfterFee : amountAfterFee / sendRate;
     const finalAmount = recipientCurrency === "USD" 
         ? amountInUSD 
@@ -462,11 +454,87 @@ export default function Dashboard() {
                     padding: 1rem;
                     font-family: 'Inter', sans-serif;
                 }
+                
+                /* Improved mobile styles */
+                @media (max-width: 767px) {
+                    .dashboard-container {
+                        padding: 0.75rem;
+                    }
+                    
+                    .summary-title, .transactions-title {
+                        font-size: 1.25rem;
+                    }
+                    
+                    .balance-amount {
+                        font-size: 1.75rem;
+                    }
+                    
+                    .account-name {
+                        font-size: 1rem;
+                    }
+                    
+                    .account-balance {
+                        font-size: 1.25rem;
+                    }
+                    
+                    .forex-title {
+                        font-size: 1rem;
+                    }
+                    
+                    .forex-currency, .forex-value {
+                        font-size: 0.8125rem;
+                    }
+                    
+                    .service-button {
+                        padding: 0.75rem 0.5rem;
+                    }
+                    
+                    .service-label {
+                        font-size: 0.75rem;
+                    }
+                    
+                    .carousel-content {
+                        max-width: 80%;
+                        padding: 1rem;
+                        margin: 1rem;
+                    }
+                    
+                    .carousel-title {
+                        font-size: 1.25rem;
+                    }
+                    
+                    .carousel-text {
+                        font-size: 0.875rem;
+                    }
+                    
+                    .transaction-item {
+                        padding: 0.75rem;
+                    }
+                    
+                    .transaction-description {
+                        font-size: 0.9375rem;
+                    }
+                    
+                    .transaction-amount {
+                        font-size: 1rem;
+                    }
+                    
+                    .modal-content {
+                        padding: 1.5rem;
+                        margin: 0.5rem;
+                    }
+                    
+                    .modal-title {
+                        font-size: 1.5rem;
+                    }
+                }
+                
                 @media (min-width: 640px) {
                     .dashboard-container {
                         padding: 1.5rem;
                     }
                 }
+                
                 @media (min-width: 1024px) {
                     body {
                         display: flex;
@@ -493,6 +561,11 @@ export default function Dashboard() {
                     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
                     z-index: 50;
                     animation: fade-in 0.5s ease-out;
+                    max-width: 90%;
+                    text-align: center;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 @keyframes fade-in {
@@ -535,6 +608,12 @@ export default function Dashboard() {
                 @media (max-width: 767px) {
                     .user-info {
                         display: none;
+                    }
+                    
+                    .user-avatar {
+                        width: 2.5rem;
+                        height: 2.5rem;
+                        font-size: 1rem;
                     }
                 }
                 
@@ -619,15 +698,15 @@ export default function Dashboard() {
                     margin-top: 1.5rem;
                 }
 
-                @media (min-width: 768px) {
+                @media (min-width: 480px) {
                     .account-cards-grid {
                         grid-template-columns: repeat(2, 1fr);
                     }
                 }
 
-                @media (min-width: 1024px) {
+                @media (min-width: 768px) {
                     .account-cards-grid {
-                        grid-template-columns: repeat(3, minmax(0, 1fr));
+                        grid-template-columns: repeat(3, 1fr);
                     }
                 }
 
@@ -724,6 +803,13 @@ export default function Dashboard() {
                     margin-top: 2rem;
                 }
                 
+                @media (max-width: 480px) {
+                    .services-grid {
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 0.5rem;
+                    }
+                }
+                
                 .service-button {
                     display: flex;
                     flex-direction: column;
@@ -734,6 +820,7 @@ export default function Dashboard() {
                     border-radius: 1rem;
                     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
                     transition: background-color 200ms;
+                    min-height: 90px;
                 }
                 
                 .service-button:hover {
@@ -755,6 +842,8 @@ export default function Dashboard() {
                     font-size: 0.875rem;
                     font-weight: 600;
                     color: #4b5563;
+                    text-align: center;
+                    word-break: break-word;
                 }
 
                 /* Enhanced Carousel Styles */
@@ -765,6 +854,12 @@ export default function Dashboard() {
                     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
                     overflow: hidden;
                     height: 16rem;
+                }
+                
+                @media (max-width: 767px) {
+                    .carousel-container {
+                        height: 12rem;
+                    }
                 }
                 
                 .carousel-slide {
@@ -788,6 +883,14 @@ export default function Dashboard() {
                     margin: 1.5rem;
                     border-radius: 1rem;
                     max-width: 60%;
+                }
+                
+                @media (max-width: 767px) {
+                    .carousel-content {
+                        padding: 1rem;
+                        margin: 1rem;
+                        max-width: 80%;
+                    }
                 }
 
                 .carousel-title {
@@ -926,6 +1029,8 @@ export default function Dashboard() {
                     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
                     max-width: 32rem;
                     width: 100%;
+                    max-height: 90vh;
+                    overflow-y: auto;
                 }
                 
                 .modal-close-button {
