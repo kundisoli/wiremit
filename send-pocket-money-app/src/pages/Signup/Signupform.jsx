@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { AiOutlineUser, AiOutlineMail, AiOutlineLock, AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { FaFacebook, FaYoutube, FaGoogle, FaLinkedin } from "react-icons/fa";
+import { motion } from "framer-motion";
+import signupImage from "../../assets/online-registration-or-sign-up-login-for-account-on-smartphone-app-user-interface-with-secure-password-mobile-application-for-ui-web-banner-access-cartoon-people-illustration-vector.jpg"; 
 import "./Signup.scss";
 
 const SignupForm = () => {
@@ -27,71 +30,172 @@ const SignupForm = () => {
     console.log("Form submitted:", formData);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.3 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 100 }
+    }
+  };
+
+  const imageVariants = {
+    hidden: { opacity: 0, x: 50 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.8, ease: "easeOut" }
+    }
+  };
+
   return (
-    <div className="signup-container">
-      <form onSubmit={handleSubmit} className="signup-form">
-        <h2>Sign Up</h2>
+    <motion.div 
+      className="signup-container"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <div className="signup-left">
+        <motion.div className="signup-content" variants={containerVariants}>
+          <motion.h1 variants={itemVariants}>New here?</motion.h1>
+          <motion.p className="subtitle" variants={itemVariants}>
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-
-        <div className="password-field">
-          <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <span
-            className="toggle-icon"
-            onClick={() => setShowPassword(!showPassword)}
+Send money to your loved ones abroad quickly, safely, and effortlessly. Create your account today and stay connected across borders
+          </motion.p>
+          
+          <motion.form 
+            onSubmit={handleSubmit} 
+            className="signup-form"
+            variants={containerVariants}
           >
-            {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
-          </span>
-        </div>
+            <motion.div className="input-group" variants={itemVariants}>
+              <input
+                type="text"
+                name="name"
+                placeholder="Username"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+            </motion.div>
 
-        <div className="password-field">
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            name="confirmPassword"
-            placeholder="Confirm Password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
-          <span
-            className="toggle-icon"
-            onClick={() =>
-              setShowConfirmPassword(!showConfirmPassword)
-            }
-          >
-            {showConfirmPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
-          </span>
-        </div>
+            <motion.div className="input-group" variants={itemVariants}>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </motion.div>
 
-        <button type="submit">Create Account</button>
-        <p className="signin-link">
-          Already have an account? <a href="/signin">Sign In</a>
-        </p>
-      </form>
-    </div>
+            <motion.div className="input-group password-field" variants={itemVariants}>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <span
+                className="toggle-icon"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+              </span>
+            </motion.div>
+
+            <motion.div className="input-group password-field" variants={itemVariants}>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+              <span
+                className="toggle-icon"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <AiFillEyeInvisible /> : <AiFillEye />}
+              </span>
+            </motion.div>
+
+            <motion.button 
+              type="submit" 
+              className="signup-btn"
+              variants={itemVariants}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              SIGN UP
+            </motion.button>
+          </motion.form>
+
+          <motion.div className="divider" variants={itemVariants}>---</motion.div>
+
+          <motion.div className="social-login" variants={itemVariants}>
+            <p>Or Sign up with social platforms</p>
+            <motion.div 
+              className="social-icons"
+              variants={containerVariants}
+            >
+              <motion.span 
+                className="icon" 
+                variants={itemVariants}
+                whileHover={{ y: -3, scale: 1.1 }}
+              >
+                <FaFacebook />
+              </motion.span>
+              <motion.span 
+                className="icon" 
+                variants={itemVariants}
+                whileHover={{ y: -3, scale: 1.1 }}
+              >
+                <FaYoutube />
+              </motion.span>
+              <motion.span 
+                className="icon" 
+                variants={itemVariants}
+                whileHover={{ y: -3, scale: 1.1 }}
+              >
+                <FaGoogle />
+              </motion.span>
+              <motion.span 
+                className="icon" 
+                variants={itemVariants}
+                whileHover={{ y: -3, scale: 1.1 }}
+              >
+                <FaLinkedin />
+              </motion.span>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </div>
+      
+      <motion.div 
+        className="signup-right"
+        variants={imageVariants}
+      >
+        <motion.img 
+          src={signupImage} 
+          alt="Signup visual" 
+          className="signup-image"
+          whileHover={{ scale: 1.02 }}
+        />
+      </motion.div>
+    </motion.div>
   );
 };
 

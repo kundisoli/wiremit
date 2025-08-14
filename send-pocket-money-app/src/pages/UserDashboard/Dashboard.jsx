@@ -9,7 +9,7 @@ import {
   Wallet,
 } from 'lucide-react';
 
-// Custom hook to get window width for responsive design
+
 const useWindowWidth = () => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -24,7 +24,7 @@ const useWindowWidth = () => {
     return windowWidth;
 };
 
-// Reusable Button for Services
+
 const ServiceButton = ({ onClick, children, icon: Icon }) => (
     <button onClick={onClick} className="service-button">
         <div className="service-icon-wrapper">
@@ -34,7 +34,7 @@ const ServiceButton = ({ onClick, children, icon: Icon }) => (
     </button>
 );
 
-// Top bar component
+
 const TopBar = ({ user, currentTime, onNotificationClick }) => {
     const windowWidth = useWindowWidth();
     const isMobile = windowWidth < 768;
@@ -58,7 +58,7 @@ const TopBar = ({ user, currentTime, onNotificationClick }) => {
     );
 };
 
-// New Dashboard Summary component
+
 const DashboardSummary = ({ accounts, monthlyExpenses }) => {
     const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0).toFixed(2);
     return (
@@ -85,11 +85,29 @@ const DashboardSummary = ({ accounts, monthlyExpenses }) => {
     );
 };
 
-// Advertisement Carousel Component
+
+const ForexRatesCard = ({ fxRates }) => {
+    return (
+        <div className="forex-card">
+            <h3 className="forex-title">Current Exchange Rates</h3>
+            <div className="forex-rates">
+                <div className="forex-rate">
+                    <span className="forex-currency">GBP (British Pound)</span>
+                    <span className="forex-value">1 USD = {fxRates.GBP || '0.74'} GBP</span>
+                </div>
+                <div className="forex-rate">
+                    <span className="forex-currency">ZAR (South African Rand)</span>
+                    <span className="forex-value">1 USD = {fxRates.ZAR || '17.75'} ZAR</span>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Carousel = ({ advertisements }) => {
     const [currentAdIndex, setCurrentAdIndex] = useState(0);
 
-    // Auto-rotate the ads every 5 seconds
+   
     useEffect(() => {
         const adInterval = setInterval(() => {
             setCurrentAdIndex((prevIndex) => (prevIndex + 1) % advertisements.length);
@@ -102,10 +120,17 @@ const Carousel = ({ advertisements }) => {
             {advertisements.map((ad, index) => (
                 <div
                     key={index}
-                    className={`carousel-slide ${ad.color} ${index === currentAdIndex ? 'active' : ''}`}
+                    className={`carousel-slide ${index === currentAdIndex ? 'active' : ''}`}
+                    style={{ 
+                        backgroundImage: `url(${ad.image})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                    }}
                 >
-                    <h3 className="carousel-title">{ad.title}</h3>
-                    <p className="carousel-text">{ad.text}</p>
+                    <div className="carousel-content">
+                        <h3 className="carousel-title">{ad.title}</h3>
+                        <p className="carousel-text">{ad.text}</p>
+                    </div>
                 </div>
             ))}
             <div className="carousel-nav">
@@ -121,7 +146,6 @@ const Carousel = ({ advertisements }) => {
     );
 };
 
-// Pagination Component
 const Pagination = ({ currentPage, totalPages, paginate }) => (
     <div className="pagination">
         <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} className="pagination-button disabled:opacity-50">
@@ -136,7 +160,6 @@ const Pagination = ({ currentPage, totalPages, paginate }) => (
     </div>
 );
 
-// Generic Modal for services
 const ServiceModal = ({ show, onClose, children }) => {
     if (!show) return null;
     return (
@@ -150,56 +173,60 @@ const ServiceModal = ({ show, onClose, children }) => {
         </div>
     );
 };
-
-// Send Money Modal
 const SendMoneyModal = ({ onClose, fxRates, showAppNotification }) => {
     const [amount, setAmount] = useState(100);
-    const [currency, setCurrency] = useState("GBP");
-    const [summary, setSummary] = useState({ fee: 0, fxRate: 0, finalAmount: 0 });
+    const [sendCurrency, setSendCurrency] = useState("USD");
+    const [recipientCurrency, setRecipientCurrency] = useState("GBP");
+    const [paymentMethod, setPaymentMethod] = useState("bank");
     const [amountError, setAmountError] = useState('');
 
-    const feeConfig = {
-        USD: { type: "flat", value: 2 },
-        GBP: { type: "percent", value: 0.02 },
-        ZAR: { type: "percent", value: 0.05 },
+    const getFeePercent = (cur, method) => {
+        if (cur === "GBP") {
+            if (method === "card") return 0.12; 
+            if (method === "mobile") return 0.15; 
+            return 0.10; 
+        }
+        if (cur === "ZAR") {
+            if (method === "card") return 0.22;
+            if (method === "mobile") return 0.25;
+            return 0.20;
+        }
+        if (cur === "USD") {
+            if (method === "card") return 0.03;
+            if (method === "mobile") return 0.05;
+            return 0.01;
+        }
+        return 0.10; 
     };
 
-    useEffect(() => {
-        const calculateTransaction = () => {
-            const amt = parseFloat(amount);
-            if (isNaN(amt) || amt < 10 || amt > 10000) {
-                setAmountError('Enter an amount between 10 and 10,000.');
-                setSummary({ fee: 0, fxRate: 0, finalAmount: 0 });
-                return;
-            } else {
-                setAmountError('');
-            }
+   
+    const feePercent = getFeePercent(sendCurrency, paymentMethod);
+    const fee = Math.round(amount * feePercent * 100) / 100;
+    const amountAfterFee = amount - fee;
 
-            const feeData = feeConfig[currency] || { type: "flat", value: 2 };
-            const rate = fxRates[currency] || 1;
-
-            let calculatedFee = feeData.type === "percent" ? amt * feeData.value : feeData.value;
-            calculatedFee = Math.round(calculatedFee * 100) / 100;
-
-            const amountAfterFee = amt - calculatedFee;
-            const calculatedFinal = Math.round(amountAfterFee * rate * 100) / 100;
-
-            setSummary({
-                fee: calculatedFee,
-                fxRate: rate,
-                finalAmount: calculatedFinal,
-            });
-        };
-
-        if (Object.keys(fxRates).length > 0) {
-            calculateTransaction();
-        }
-
-    }, [amount, currency, fxRates]);
+  
+    const sendRate = fxRates[sendCurrency] || 1;
+    const recipientRate = fxRates[recipientCurrency] || 1;
     
+ 
+    const amountInUSD = sendCurrency === "USD" ? amountAfterFee : amountAfterFee / sendRate;
+    const finalAmount = recipientCurrency === "USD" 
+        ? amountInUSD 
+        : amountInUSD * recipientRate;
+    
+    const roundedFinalAmount = Math.round(finalAmount * 100) / 100;
+
+    useEffect(() => {
+        if (isNaN(amount) || amount < 10 || amount > 10000) {
+            setAmountError('Enter an amount between 10 and 10,000.');
+        } else {
+            setAmountError('');
+        }
+    }, [amount]);
+
     const handleSend = () => {
         if (!amountError) {
-            showAppNotification(`Sending ${amount} USD. Recipient receives ${currency} ${summary.finalAmount.toFixed(2)}.`);
+            showAppNotification(`Sending ${amount} ${sendCurrency} via ${paymentMethod}. Recipient receives ${recipientCurrency} ${roundedFinalAmount.toFixed(2)}.`);
             onClose();
         }
     };
@@ -208,24 +235,11 @@ const SendMoneyModal = ({ onClose, fxRates, showAppNotification }) => {
         <div className="send-money-modal">
             <h2 className="modal-title">Send Money</h2>
             <div className="form-group">
-                <label htmlFor="amount" className="form-label">Amount (USD)</label>
-                <input
-                    id="amount"
-                    type="number"
-                    value={amount}
-                    min="10"
-                    max="10000"
-                    onChange={(e) => setAmount(e.target.value)}
-                    className={`form-input ${amountError ? 'input-error' : ''}`}
-                />
-                {amountError && <p className="error-message">{amountError}</p>}
-            </div>
-            <div className="form-group">
-                <label htmlFor="currency" className="form-label">Recipient Currency</label>
+                <label htmlFor="send-currency" className="form-label">Send Currency</label>
                 <select
-                    id="currency"
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value)}
+                    id="send-currency"
+                    value={sendCurrency}
+                    onChange={(e) => setSendCurrency(e.target.value)}
                     className="form-select"
                 >
                     {Object.keys(fxRates).map((cur) => (
@@ -233,11 +247,56 @@ const SendMoneyModal = ({ onClose, fxRates, showAppNotification }) => {
                     ))}
                 </select>
             </div>
-            <div className="summary-box">
-                <h3 className="summary-box-title">Transaction Summary</h3>
-                <p className="summary-detail">Fee: {currency} {summary.fee.toFixed(2)}</p>
-                <p className="summary-detail">Exchange Rate: 1 USD = {summary.fxRate} {currency}</p>
-                <p className="summary-final-amount">Recipient Receives: {currency} {summary.finalAmount.toFixed(2)}</p>
+            <div className="form-group">
+                <label htmlFor="amount" className="form-label">Amount ({sendCurrency})</label>
+                <input
+                    id="amount"
+                    type="number"
+                    value={amount}
+                    min="10"
+                    max="10000"
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                    className={`form-input ${amountError ? 'input-error' : ''}`}
+                />
+                {amountError && <p className="error-message">{amountError}</p>}
+            </div>
+            <div className="form-group">
+                <label htmlFor="recipient-currency" className="form-label">Recipient Currency</label>
+                <select
+                    id="recipient-currency"
+                    value={recipientCurrency}
+                    onChange={(e) => setRecipientCurrency(e.target.value)}
+                    className="form-select"
+                >
+                    {Object.keys(fxRates).map((cur) => (
+                        <option key={cur} value={cur}>{cur}</option>
+                    ))}
+                </select>
+            </div>
+            <div className="form-group">
+                <label htmlFor="payment-method" className="form-label">Payment Method</label>
+                <select
+                    id="payment-method"
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    className="form-select"
+                >
+                    <option value="bank">Bank Transfer</option>
+                    <option value="card">Card</option>
+                    <option value="mobile">Mobile Money</option>
+                </select>
+            </div>
+            <div className="summary-box" style={{marginTop: "1.5rem"}}>
+                <h3 className="summary-box-title" style={{color: "#4f46e5"}}>Transaction Summary</h3>
+                <p className="summary-detail" style={{color: "black"}}>
+                    Fee ({(feePercent * 100).toFixed(0)}%): {sendCurrency} {fee.toFixed(2)}
+                </p>
+                <p className="summary-detail" style={{color: "black"}}>
+                    Exchange Rate: 1 {sendCurrency} = {(sendCurrency === recipientCurrency ? 1 : (recipientRate / sendRate)).toFixed(4)} {recipientCurrency}
+                </p>
+                <p className="summary-final-amount" style={{color: "black", fontWeight: "bold"}}>
+                    Recipient Receives: {recipientCurrency} {roundedFinalAmount.toFixed(2)}
+                </p>
             </div>
             <div className="modal-action-buttons">
                 <button onClick={handleSend} className="send-button">
@@ -248,7 +307,18 @@ const SendMoneyModal = ({ onClose, fxRates, showAppNotification }) => {
     );
 };
 
-// Main Dashboard component
+const AccountCard = ({ account, onClick }) => (
+    <div onClick={onClick} className="account-card">
+        <div className="account-icon-wrapper">
+            <Wallet size={24} className="account-icon" />
+        </div>
+        <div className="account-details">
+            <div className="account-name">{account.name}</div>
+            <div className="account-balance">${account.balance.toFixed(2)}</div>
+        </div>
+    </div>
+);
+
 export default function Dashboard() {
     const [currentTime, setCurrentTime] = useState(new Date());
     const [showModal, setShowModal] = useState(false);
@@ -264,9 +334,23 @@ export default function Dashboard() {
         { name: "Primary Account", balance: 2749.0 },
         { name: "Saving Account", balance: 50.0 },
     ];
+    
     const advertisements = [
-        { title: "Get a Personal Loan", text: "Low interest rates, quick approval!", color: "bg-blue-600" },
-        { title: "Open a High-Yield Savings", text: "Earn more on your savings today.", color: "bg-green-600" },
+        { 
+            title: "Get a Personal Loan", 
+            text: "Low interest rates, quick approval!", 
+            image: "https://images.unsplash.com/photo-1601597111158-2fceff292cdc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+        },
+        { 
+            title: "High-Yield Savings", 
+            text: "Earn more on your savings today.", 
+            image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+        },
+        { 
+            title: "Investment Plans", 
+            text: "Grow your wealth with our experts.", 
+            image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+        }
     ];
 
     const monthlyExpenses = [
@@ -319,7 +403,7 @@ export default function Dashboard() {
     }, []);
 
     useEffect(() => {
-        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        const timer = setInterval(() => setCurrentTime(new Date()), 3000);
         return () => clearInterval(timer);
     }, []);
 
@@ -368,27 +452,10 @@ export default function Dashboard() {
                 return '';
         }
     };
-    
-    const AccountCard = ({ account, onClick }) => (
-        <div onClick={onClick} className="account-card">
-            <div className="account-icon-wrapper">
-                <Wallet size={24} className="account-icon" />
-            </div>
-            <div className="account-details">
-                <div className="account-name">{account.name}</div>
-                <div className="account-balance">${account.balance.toFixed(2)}</div>
-            </div>
-        </div>
-    );
 
     return (
         <div className="dashboard-container">
             <style>{`
-                /* You would typically import this from a compiled CSS file, like so:
-                 * import './dashboard.css';
-                 * but for this example, we've included the styles inline below.
-                 * Please see the next immersive for the SCSS source code.
-                 */
                 .dashboard-container {
                     min-height: 100vh;
                     background-color: #f3f4f6;
@@ -400,7 +467,6 @@ export default function Dashboard() {
                         padding: 1.5rem;
                     }
                 }
-                /* Adjusted for centered desktop view */
                 @media (min-width: 1024px) {
                     body {
                         display: flex;
@@ -555,11 +621,10 @@ export default function Dashboard() {
 
                 @media (min-width: 768px) {
                     .account-cards-grid {
-                        grid-template-columns: 1fr 1fr;
+                        grid-template-columns: repeat(2, 1fr);
                     }
                 }
 
-                /* Adjusted for full-width desktop view */
                 @media (min-width: 1024px) {
                     .account-cards-grid {
                         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -613,6 +678,45 @@ export default function Dashboard() {
                     color: #1f2937;
                 }
 
+                /* Forex Rates Card Styles */
+                .forex-card {
+                    padding: 1.5rem;
+                    background-color: white;
+                    border-radius: 1.5rem;
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                }
+
+                .forex-title {
+                    font-size: 1.125rem;
+                    font-weight: 600;
+                    color: #1f2937;
+                    margin-bottom: 1rem;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding-bottom: 0.5rem;
+                }
+
+                .forex-rates {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.75rem;
+                }
+
+                .forex-rate {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                .forex-currency {
+                    font-size: 0.875rem;
+                    color: #4b5563;
+                }
+
+                .forex-value {
+                    font-weight: 600;
+                    color: #1f2937;
+                }
+
                 .services-grid {
                     display: grid;
                     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -653,23 +757,23 @@ export default function Dashboard() {
                     color: #4b5563;
                 }
 
+                /* Enhanced Carousel Styles */
                 .carousel-container {
                     position: relative;
                     margin-top: 2rem;
                     border-radius: 1.5rem;
                     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
                     overflow: hidden;
-                    height: 10rem;
+                    height: 16rem;
                 }
                 
                 .carousel-slide {
                     position: absolute;
                     inset: 0;
-                    padding: 1.5rem;
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
-                    color: white;
+                    align-items: flex-start;
                     transition: opacity 1000ms ease-in-out;
                     opacity: 0;
                 }
@@ -678,13 +782,24 @@ export default function Dashboard() {
                     opacity: 1;
                 }
 
+                .carousel-content {
+                    background-color: rgba(0, 0, 0, 0.6);
+                    padding: 1.5rem;
+                    margin: 1.5rem;
+                    border-radius: 1rem;
+                    max-width: 60%;
+                }
+
                 .carousel-title {
-                    font-size: 1.25rem;
+                    font-size: 1.5rem;
                     font-weight: bold;
+                    color: white;
+                    margin-bottom: 0.5rem;
                 }
 
                 .carousel-text {
-                    font-size: 0.875rem;
+                    font-size: 1rem;
+                    color: white;
                     margin-top: 0.5rem;
                 }
 
@@ -695,6 +810,7 @@ export default function Dashboard() {
                     transform: translateX(-50%);
                     display: flex;
                     gap: 0.5rem;
+                    z-index: 10;
                 }
                 
                 .carousel-dot {
@@ -751,7 +867,7 @@ export default function Dashboard() {
                     color: #1f2937;
                 }
                 
-.transaction-date {
+                .transaction-date {
                     font-size: 0.875rem;
                     color: #6b7280;
                 }
@@ -820,7 +936,7 @@ export default function Dashboard() {
                     transition: color 200ms;
                 }
                 
-.modal-close-button:hover {
+                .modal-close-button:hover {
                     color: #1f2937;
                 }
 
@@ -946,6 +1062,7 @@ export default function Dashboard() {
                         onClick={() => showAppNotification(`Showing details for ${acc.name}.`)}
                     />
                 ))}
+                <ForexRatesCard fxRates={fxRates} />
             </div>
 
             <div className="services-grid">
