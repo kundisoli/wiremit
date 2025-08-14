@@ -1,6 +1,6 @@
-How to Run the App
+How to Run the App this is a React vite project
 Prerequisites
-Node.js (v14 or higher recommended)
+Node.js
 
 npm or yarn
 
