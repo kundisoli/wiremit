@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock, AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { FaFacebook, FaYoutube, FaGoogle, FaLinkedin } from "react-icons/fa";
 import { motion } from "framer-motion";
-import signupImage from "../../assets/online-registration-or-sign-up-login-for-account-on-smartphone-app-user-interface-with-secure-password-mobile-application-for-ui-web-banner-access-cartoon-people-illustration-vector.jpg"; 
+import signupImage from "../../assets/Login.jpg"; 
 import "./Signup.scss";
 
 const SignupForm = () => {
