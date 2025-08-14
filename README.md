@@ -38,7 +38,3 @@ I'm a big believer in making the user's life easy, so I focused on setting sensi
 
 Finally, I always made sure to build in a safety net. For situations where a critical API might be down, I created a robust error handling system. Instead of showing a blank or broken page, the app would fall back to a mock data system that looked and felt like the real thing, ensuring the user experience remained as seamless as possible.
 
-Component Structure & Data Flow
-To keep the application organized and easy to maintain, I built it with a clear, logical structure. Think of it like a family tree for the code, where each part of the app is a component. Data flows in a very predictable way from the top-level components down to the smaller ones, which makes it much simpler to debug issues and add new features without breaking anything. 
-
-Component 
